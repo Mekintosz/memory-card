@@ -6,7 +6,7 @@ export default function useImageURLs() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`https://api.nasa.gov/planetary/apod?api_key=${NASA_API_KET}&count=10`)
+    fetch(`https://api.nasa.gov/planetary/apod?api_key=${import.meta.env.VITE_NASA_API_KEY}&count=10`)
       .then((response) => {
         if (response.status >= 400) {
           throw new Error("server error");
