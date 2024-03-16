@@ -67,9 +67,12 @@ export default function GameBoard(props) {
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    if (score == 10) setWin(true);
+  }, [score]);
+
   if (error) return <p className="status">A network error was encountered</p>;
   if (loading) return <p className="status">Loading...</p>;
-  if (score == 10) setWin(true);
 
   const cards = [];
   imageURLs.forEach((image) => {
