@@ -1,5 +1,4 @@
 import Card from "./Card";
-// import useImageURLs from "./hooks/useImageURLs";
 import { useState, useEffect } from "react";
 import { v4 as uuidV4 } from "uuid";
 
@@ -7,29 +6,47 @@ export default function GameBoard(props) {
   const [imageURLs, setImageURLs] = useState(() => null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [score, setScore] = useState(0);
-  const [highestScore, setHighestScore] = useState(0);
   const [clickedImageIDs, setClickedImageIDs] = useState([]);
-  const [win , setWin] = useState(false)
+  const { score, setScore, highestScore, setHighestScore, setWin } = props;
+
+  function setImageIDs(imgArr) {
+    return imgArr.map((image) => ({ ...image, ID: uuidV4() }));
+  }
+
+  const randomizeCardsOrder = () => {
+    const nextImageURLs = [...imageURLs];
+    for (let i = nextImageURLs.length - 1; i > 0; i--) {
+      let randomIndex = Math.floor(Math.random() * (i + 1));
+      let currentImageURL = nextImageURLs[randomIndex];
+      nextImageURLs[randomIndex] = nextImageURLs[i];
+      nextImageURLs[i] = currentImageURL;
+    }
+    setImageURLs(nextImageURLs);
+  };
 
   function logClickedImage(imageID) {
-    const isLoged = clickedImageIDs.includes(imageID);
-    
-    if (!isLoged && score < 10)  {
-      
     setClickedImageIDs((prev) => {
-     return [...prev, imageID]});
-     setScore(prev => prev + 1)
-     randomizeCardsOrder()
-    } else if (!isLoged && score === 10) {
-      setScore(0)
-      setClickedImageIDs([])
-      setWin(true)
+      return [...prev, imageID];
+    });
+  }
+
+  function handleClick(imageID) {
+    const isLoged = clickedImageIDs.includes(imageID);
+    if (!isLoged) {
+      logClickedImage(imageID);
+      setScore((prev) => prev + 1);
+      randomizeCardsOrder();
+      return;
+    } else if (highestScore < score) {
+      setHighestScore(score);
+      setScore(0);
+      setClickedImageIDs([]);
+      randomizeCardsOrder();
+      return;
     } else {
-      if (highestScore < score) setHighestScore(score)
-      setScore(0)
-      setClickedImageIDs([])
-      
+      setScore(0);
+      setClickedImageIDs([]);
+      randomizeCardsOrder();
     }
   }
 
@@ -50,32 +67,16 @@ export default function GameBoard(props) {
       .finally(() => setLoading(false));
   }, []);
 
-  if (error) return <p>A network error was encountered</p>;
-  if (loading) return <p>Loading...</p>;
-
-  function setImageIDs(imgArr) {
-    return imgArr.map((image) => ({ ...image, ID: uuidV4() }));
-  }
-
-  const randomizeCardsOrder = () => {
-    const nextImageURLs = [...imageURLs];
-
-    for (let i = nextImageURLs.length - 1; i > 0; i--) {
-      let randomIndex = Math.floor(Math.random() * (i + 1));
-      let currentImageURL = nextImageURLs[randomIndex];
-      nextImageURLs[randomIndex] = nextImageURLs[i];
-      nextImageURLs[i] = currentImageURL;
-    }
-
-    setImageURLs(nextImageURLs);
-  };
+  if (error) return <p className="status">A network error was encountered</p>;
+  if (loading) return <p className="status">Loading...</p>;
+  if (score == 10) setWin(true);
 
   const cards = [];
   imageURLs.forEach((image) => {
     cards.push(
       <Card
         key={image.ID}
-        handleClick={() => logClickedImage(image.ID)}
+        handleClick={() => handleClick(image.ID)}
         imgURL={image.url}
         title={image.title}
       />
@@ -84,14 +85,7 @@ export default function GameBoard(props) {
 
   return (
     <>
-     {win && <div className="score-board">
-      <h3>10/10 You can start new game!!!</h3>
-              <button onClick={GameBoard}>New game</button>
-              </div>}
-      <p>Score: {score}</p>
-      <p>Highest score: {highestScore}</p>
       <div className="game-board">{cards}</div>
-    
     </>
   );
 }

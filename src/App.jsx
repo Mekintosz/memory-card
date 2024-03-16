@@ -1,19 +1,26 @@
-import GameOverModal from './components/GameOverModal'
-import GameBoard from './components/GameBoard'
-import { useState } from 'react'
-import './App.css'
+import { useState } from "react";
+import "./App.css";
+import GameBoard from "./components/GameBoard";
+import ScoreBoard from "./components/ScoreBoard";
 
 function App() {
-  const [isGameOver, setIsGameOver] = useState(false)
+  const [score, setScore] = useState(0);
+  const [highestScore, setHighestScore] = useState(0);
+  const [win, setWin] = useState(false);
 
   return (
     <>
-     <GameBoard 
-     gameOver={setIsGameOver}/>
-     <GameOverModal
-     />
+      <ScoreBoard score={score} highestScore={highestScore} win={win} />
+      <GameBoard
+        className="score-board"
+        score={score}
+        setScore={setScore}
+        highestScore={highestScore}
+        setHighestScore={setHighestScore}
+        setWin={setWin}
+      />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
