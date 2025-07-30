@@ -1,4 +1,6 @@
-# Nasa images memory card
+# NASA images Memory card game
+
+https://mekintosz.github.io/memory-card/
 
 Click on every image only once to display new round of photos.
 
